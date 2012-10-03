@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="include\ai.h" open="1" top="0" tabpos="6">
+		<Cursor position="48" topLine="0" />
+	</File>
+	<File name="include\board.h" open="1" top="0" tabpos="4">
+		<Cursor position="1172" topLine="0" />
+	</File>
+	<File name="include\box.h" open="1" top="0" tabpos="2">
+		<Cursor position="28" topLine="0" />
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="2362" topLine="110" />
+	</File>
+	<File name="src\ai.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="118" topLine="0" />
+	</File>
+	<File name="src\board.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="2357" topLine="82" />
+	</File>
+	<File name="src\randomai.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="63" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

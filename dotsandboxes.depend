@@ -1,0 +1,60 @@
+# depslib dependency file v1.0
+1349223031 source:c:\users\mclovin\documents\ai\dotsandboxes\src\box.cpp
+	"box.h"
+
+1349223553 c:\users\mclovin\documents\ai\dotsandboxes\include\box.h
+
+1349221097 c:\users\mclovin\documents\ai\dotsandboxes\include\line.h
+
+1349221097 source:c:\users\mclovin\documents\ai\dotsandboxes\src\line.cpp
+	"line.h"
+
+1349221144 source:c:\users\mclovin\documents\ai\dotsandboxes\src\dotsandboxes.cpp
+	"dotsandboxes.h"
+
+1349221097 c:\users\mclovin\documents\ai\dotsandboxes\include\dotsandboxes.h
+	"box.h"
+	<vector>
+
+1349225930 source:c:\users\mclovin\documents\ai\dotsandboxes\main.cpp
+	<cstdio>
+	<cstdlib>
+	<string>
+	"board.h"
+	"randomai.h"
+	"montecarloai.h"
+	"alphabetaai.h"
+
+1349224653 c:\users\mclovin\documents\ai\dotsandboxes\include\board.h
+	"box.h"
+
+1349224932 source:c:\users\mclovin\documents\ai\dotsandboxes\src\board.cpp
+	"board.h"
+	<cstring>
+
+1349224534 source:c:\users\mclovin\documents\ai\dotsandboxes\src\ai.cpp
+	"ai.h"
+
+1349224815 c:\users\mclovin\documents\ai\dotsandboxes\include\ai.h
+	"board.h"
+
+1349225591 source:c:\users\mclovin\documents\ai\dotsandboxes\src\randomai.cpp
+	"randomai.h"
+	<cstdlib>
+	<ctime>
+
+1349225586 c:\users\mclovin\documents\ai\dotsandboxes\include\randomai.h
+	"ai.h"
+
+1349225930 source:c:\users\mclovin\documents\ai\dotsandboxes\src\alphabetaai.cpp
+	"alphabetaai.h"
+
+1349225930 c:\users\mclovin\documents\ai\dotsandboxes\include\alphabetaai.h
+	"ai.h"
+
+1349225930 source:c:\users\mclovin\documents\ai\dotsandboxes\src\montecarloai.cpp
+	"montecarloai.h"
+
+1349225930 c:\users\mclovin\documents\ai\dotsandboxes\include\montecarloai.h
+	"ai.h"
+
