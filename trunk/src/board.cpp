@@ -1,6 +1,10 @@
 #include "board.h"
 #include <cstring>
 
+// debug - bad (!)
+int Board::boardWidth; /**< board width */
+int Board::boardHeight; /**< board height */
+
 /**
  * Creates a new dots and boxes game
  *@param w width
@@ -28,6 +32,9 @@ Board::Board(int w, int h) {
     p2score = 0;
 
     pointsRemaining = width*height;
+
+    boardWidth = getBoardWidth();
+    boardHeight = getBoardHeight();
 }
 
 /**
@@ -183,4 +190,43 @@ int Board::getPointsRemaining() {
  */
 int Board::getCurrentPlayer() {
     return current_player;
+}
+
+/**
+ * Returns how many squares would be made
+ *@param board the board to play on
+ *@param line where to put the line
+ *@return how many squares are made
+ */
+int Board::squaresMade(int* board, int line) {
+   int x = line%boardWidth;
+   int y = line/boardWidth;
+   bool vert = y%2;
+   int squares = 0;
+   if (vert) {
+       // line is vertical, need to check square left and square right
+       if (x > 1) { // not left-most, so there is a square left
+           if (board[line-2] == BOARD_LINE && board[x-1+(y-1)*boardWidth] == BOARD_LINE && board[x-1+(y+1)*boardWidth] == BOARD_LINE) {
+               squares++;
+           }
+       }
+       if (x < boardWidth-1) { // not right-most so there is a square right
+           if (board[line+2] == BOARD_LINE && board[x+1+(y-1)*boardWidth] == BOARD_LINE && board[x+1+(y+1)*boardWidth] == BOARD_LINE) {
+               squares++;
+           }
+       }
+   } else {
+       // line is horizontal, need t ocheck square up and square down
+       if (y > 1) { // not top-most, so there is a square up
+           if (board[line-boardWidth*2] == BOARD_LINE && board[(y-1)*boardWidth+x-1] == BOARD_LINE && board[(y-1)*boardWidth+x+1] == BOARD_LINE) {
+               squares++;
+           }
+       }
+       if (y < boardHeight-1) { // not bottom-most so there is a square down
+           if (board[line+boardWidth*2] == BOARD_LINE && board[(y+1)*boardWidth+x-1] == BOARD_LINE && board[(y+1)*boardWidth+x+1] == BOARD_LINE) {
+               squares++;
+           }
+       }
+   }
+   return squares;
 }

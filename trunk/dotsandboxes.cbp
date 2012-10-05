@@ -11,7 +11,7 @@
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="4 4 random random 0 100" />
+				<Option parameters="4 4 random montecarlo 0 10" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -39,6 +39,7 @@
 		<Unit filename="include\board.h" />
 		<Unit filename="include\box.h" />
 		<Unit filename="include\montecarloai.h" />
+		<Unit filename="include\montecarlonode.h" />
 		<Unit filename="include\randomai.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src\ai.cpp" />
@@ -46,6 +47,7 @@
 		<Unit filename="src\board.cpp" />
 		<Unit filename="src\box.cpp" />
 		<Unit filename="src\montecarloai.cpp" />
+		<Unit filename="src\montecarlonode.cpp" />
 		<Unit filename="src\randomai.cpp" />
 		<Extensions>
 			<code_completion />
