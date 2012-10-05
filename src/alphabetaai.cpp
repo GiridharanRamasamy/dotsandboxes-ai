@@ -64,18 +64,19 @@ int AlphaBetaAI::alpha_beta(int* _board, int depth, int alpha, int beta, int max
             alpha = max(alpha, alpha_beta(_board, depth-1,alpha, beta, maxPlayer));
             if (beta <= alpha)
                 break; //beta cut-off
-
-            return alpha;
         }
         else
         {
             beta = min(beta, alpha_beta(_board, depth-1, alpha, beta, maxPlayer));
             if (beta <= alpha)
                 break; //alpha cut-off
-
-            return beta;
         }
     }//end while loop of all legalMoves
+
+    if(maxPlayer)
+        return alpha;
+    else
+        return beta;
 }
 
 /**
