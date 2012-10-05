@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-bool RandomAI::has_seeded = false; /**< don't see again, we'll be fucked */
+bool RandomAI::has_seeded = false; /**< don't see again, we'll be screwed */
 
 /**
  * Inits a new AI
