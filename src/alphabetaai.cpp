@@ -127,12 +127,55 @@ void AlphaBetaAI::unmakeLastMove(int* _board, int move) {
  */
  void AlphaBetaAI::generateLegalMoves(int *board, vector<int> &v)
  {
+     //Creates the vector of legal moves
      for( int i=0; i<boardWidth*boardHeight; i++)
      {
          if(board[i] == BOARD_EMPTY) {
             v.push_back(i);
          }
      }
+
+     //sorts the legal moves into [capture moves, non-capture moves]
+     for (int i=0; i<boardHeight*boardWidth; i++)
+     {
+         if(board[i] == BOARD_FREE_SQUARE)
+         {
+             int lines = board[i-(boardWidth*2+1)] + board[i-1] + board[i+1] + board[i+(boardWidth*2+1)];
+             if (lines == 3)
+             {
+                 int reorder = NULL;
+
+                 if (!board[i-(boardWidth*2+1)])
+                 {
+                     reorder = i-(boardWidth*2+1);
+                     //int loc = find(v == reorder);
+                 }
+                 else if (!board[i-1])
+                 {
+                     reorder = i-1;
+                     //int loc = find(v == reorder);
+                 }
+                 else if (!board[i+1])
+                {
+                    reorder = i+1;
+                    //int loc = find(v == reorder);
+                }
+                else
+                {
+                    reorder = i+(boardWidth*2+1);
+                    //int loc = find(v == reorder);
+                }
+
+                int loc = 0;
+                for (int j=1; j<=loc; j--)
+                {
+                    v[j] = v[j-1];
+                }
+                v[1] = reorder;
+             }
+         }
+     }
+
  }
 
 /**

@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
                     }
                     printf("\n");
                 }
-                printf("%d >< %d     | %d", game->getScore(0), game->getScore(1), game->getPointsRemaining());
+                printf("%d >< %d     | %d --> %d next", game->getScore(0), game->getScore(1), game->getPointsRemaining(), game->getCurrentPlayer()+1);
                 printf("\n\n\n");
             }
 
