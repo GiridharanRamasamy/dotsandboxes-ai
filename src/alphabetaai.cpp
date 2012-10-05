@@ -99,6 +99,7 @@ int AlphaBetaAI::alpha_beta(int* _board, int depth, int alpha, int beta, int max
  */
 int AlphaBetaAI::makeNextMove(int *_board, vector<int> &moves, int maxPlayer)
 {
+    /*
     int pointsRem = _board.getPointsRemaining();
     int nextMove = moves.back();
     _board.playBoardCoord(nextMove);
@@ -107,7 +108,7 @@ int AlphaBetaAI::makeNextMove(int *_board, vector<int> &moves, int maxPlayer)
         return maxPlayer;
 
     return !maxPlayer; //no change in score, so minPlayers turn
- /*
+
     _board[nextMove] = BOARD_LINE;
     if (squaresMade(board, nextMove) > 0)
     {
