@@ -125,3 +125,70 @@
 	"board.h"
 	<cstring>
 
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\ai.cpp
+	"ai.h"
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\ai.h
+	"board.h"
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\board.h
+	"box.h"
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\box.h
+
+1349466618 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\alphabetaai.cpp
+	"alphabetaai.h"
+	<limits>
+	<cmath>
+	<cstring>
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\alphabetaai.h
+	<vector>
+	"ai.h"
+
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\board.cpp
+	"board.h"
+	<cstring>
+
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\box.cpp
+	"box.h"
+
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\montecarloai.cpp
+	"montecarloai.h"
+	<ctime>
+	<cmath>
+	<cstdlib>
+	<cstdio>
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\montecarloai.h
+	"ai.h"
+	"montecarlonode.h"
+	<vector>
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\montecarlonode.h
+	<vector>
+
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\montecarlonode.cpp
+	"montecarlonode.h"
+	"board.h"
+	<cstring>
+
+1349449287 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\src\randomai.cpp
+	"randomai.h"
+	<cstdlib>
+	<ctime>
+
+1349449287 c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\include\randomai.h
+	"ai.h"
+
+1349453430 source:c:\users\joel\documents\fall 2012\a.i\dotsandboxes-ai\main.cpp
+	<cstdio>
+	<cstdlib>
+	<string>
+	<cstring>
+	"board.h"
+	"randomai.h"
+	"montecarloai.h"
+	"alphabetaai.h"
+	<conio.h>
+
