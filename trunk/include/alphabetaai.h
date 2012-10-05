@@ -17,6 +17,11 @@ class AlphaBetaAI: public AI
         AlphaBetaAI(int bw, int bh);
 
         /**
+         * Frees memory
+         */
+        ~AlphaBetaAI();
+
+        /**
          * Makes a move, randomly
          *@param board the game board visualization
          *@param score my score
@@ -24,22 +29,24 @@ class AlphaBetaAI: public AI
          *@param pointsRemaining how many points are left this game
          *@return my move
          */
-
-        int* _board;
-
         int makeMove(int* board, int score, int opponentScore, int pointsRemaining);
 
+    private:
 
-        int alpha_beta(int* _board, int depth, int alpha, int beta, int maxPlayer);
+        float alpha_beta(int* _board, int depth, float alpha, float beta, int maxPlayer, int myScore, int otherScore, int pointsRemaining);
 
         void generateLegalMoves(int *board, vector<int> &v);
 
-        int makeNextMove(int *_board, vector<int> &moves, int maxPlayer);
+        int makeNextMove(int *_board, int move, int maxPlayer, int& myScore, int& otherScore, int& pointsRemaining);
 
-        int evaluate(int* _board);
+        void unmakeLastMove(int* _board, int move);
 
+        void unmakeLastMove();
 
-    private:
+        float evaluate(int* _board, int, int, bool);
+
+        int* _board;
+        int bestMove;
 };
 
 #endif // ALPHABETAAI_H
