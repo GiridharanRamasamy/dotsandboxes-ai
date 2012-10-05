@@ -1,10 +1,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 #include "board.h"
 #include "randomai.h"
 #include "montecarloai.h"
 #include "alphabetaai.h"
+
+#include <conio.h>
 
 /**
  * Returns the AI from the string
@@ -75,7 +78,7 @@ int main(int argc, char* argv[])
     int p2wins = 0;
 
     for (int k = 0; k < games; k++) {
-        printf("Starting game %d\n", k+1);
+        printf("Playing game %d\n", k+1);
 
         Board* game = new Board(w, h);
 
@@ -85,6 +88,8 @@ int main(int argc, char* argv[])
         if (agent1 == NULL || agent2 == NULL) {
             return -1;
         }
+
+        int* board = new int[game->getBoardWidth()*game->getBoardHeight()];
 
         while (game->getPointsRemaining() > 0) {
             if (visual) {
@@ -98,19 +103,21 @@ int main(int argc, char* argv[])
                 printf("\n\n\n");
             }
 
-
+            memcpy((void *)board, (void *)game->getBoard(), sizeof(int)*game->getBoardWidth()*game->getBoardHeight());
             if (game->getCurrentPlayer()) {
-                if (!game->playBoardCoord(agent2->makeMove(game->getBoard(), game->getScore(1), game->getScore(0), game->getPointsRemaining()))) {
+                if (!game->playBoardCoord(agent2->makeMove(board, game->getScore(1), game->getScore(0), game->getPointsRemaining()))) {
                     printf("Player 2 loses because he made an illegal move\n");
                     return -1;
                 }
             } else {
-                if (!game->playBoardCoord(agent1->makeMove(game->getBoard(), game->getScore(0), game->getScore(1), game->getPointsRemaining()))) {
+                if (!game->playBoardCoord(agent1->makeMove(board, game->getScore(0), game->getScore(1), game->getPointsRemaining()))) {
                     printf("Player 1 loses because he made an illegal move\n");
                     return -1;
                 }
             }
         }
+
+        delete[] board;
 
         if (visual) {
             for (int i = 0; i < game->getBoardHeight(); i++) {

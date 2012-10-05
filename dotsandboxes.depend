@@ -58,3 +58,66 @@
 1349225930 c:\users\mclovin\documents\ai\dotsandboxes\include\montecarloai.h
 	"ai.h"
 
+1349226630 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\ai.cpp
+	"ai.h"
+
+1349226630 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\ai.h
+	"board.h"
+
+1349401303 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\board.h
+	"box.h"
+
+1349226630 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\box.h
+
+1349226630 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\alphabetaai.cpp
+	"alphabetaai.h"
+
+1349226630 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\alphabetaai.h
+	"ai.h"
+
+1349401303 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\board.cpp
+	"board.h"
+	<cstring>
+
+1349226630 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\box.cpp
+	"box.h"
+
+1349226630 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\randomai.cpp
+	"randomai.h"
+	<cstdlib>
+	<ctime>
+
+1349226630 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\randomai.h
+	"ai.h"
+
+1349403381 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\montecarloai.cpp
+	"montecarloai.h"
+	<ctime>
+	<cmath>
+	<cstdlib>
+	<cstdio>
+
+1349403375 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\montecarloai.h
+	"ai.h"
+	"montecarlonode.h"
+	<vector>
+
+1349395924 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\main.cpp
+	<cstdio>
+	<cstdlib>
+	<string>
+	<cstring>
+	"board.h"
+	"randomai.h"
+	"montecarloai.h"
+	"alphabetaai.h"
+	<conio.h>
+
+1349403323 c:\users\mclovin\documents\ai\dotsandboxes-ai\include\montecarlonode.h
+	<vector>
+
+1349403434 source:c:\users\mclovin\documents\ai\dotsandboxes-ai\src\montecarlonode.cpp
+	"montecarlonode.h"
+	"board.h"
+	<cstring>
+

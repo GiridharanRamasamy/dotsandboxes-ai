@@ -83,6 +83,14 @@ class Board
          *@return 0/1
          */
         int getCurrentPlayer();
+
+        /**
+         * Returns how many squares would be made
+         *@param board the board to play on
+         *@param line where to put the line
+         *@return how many squares are made
+         */
+        static int squaresMade(int* board, int line);
     private:
         int width; /**< width of the board (in dots) */
         int height; /**< height of the board (in dots) */
@@ -103,6 +111,11 @@ class Board
         int p2score; /**< player 2 score */
 
         int pointsRemaining; /**< how many boxes are unowned */
+
+
+        // debug - bad (!)
+        static int boardWidth; /**< board width */
+        static int boardHeight; /**< board height */
 };
 
 #endif // DOTSANDBOXES_H
