@@ -2,40 +2,46 @@
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
 	<File name="include\ai.h" open="0" top="0" tabpos="5">
-		<Cursor position="48" topLine="0" />
+		<Cursor position="278" topLine="0" />
 	</File>
-	<File name="include\alphabetaai.h" open="1" top="0" tabpos="4">
-		<Cursor position="861" topLine="28" />
+	<File name="include\alphabetaai.h" open="1" top="0" tabpos="3">
+		<Cursor position="2993" topLine="65" />
 	</File>
-	<File name="include\board.h" open="1" top="0" tabpos="2">
-		<Cursor position="2969" topLine="90" />
+	<File name="include\alphabetanode.h" open="1" top="0" tabpos="5">
+		<Cursor position="3505" topLine="101" />
+	</File>
+	<File name="include\board.h" open="0" top="0" tabpos="2">
+		<Cursor position="2449" topLine="0" />
 	</File>
 	<File name="include\box.h" open="0" top="0" tabpos="2">
 		<Cursor position="28" topLine="0" />
 	</File>
-	<File name="include\montecarloai.h" open="0" top="0" tabpos="9">
-		<Cursor position="2108" topLine="46" />
+	<File name="include\montecarloai.h" open="1" top="0" tabpos="10">
+		<Cursor position="2246" topLine="47" />
 	</File>
-	<File name="include\montecarlonode.h" open="1" top="0" tabpos="6">
-		<Cursor position="1899" topLine="114" />
+	<File name="include\montecarlonode.h" open="1" top="0" tabpos="9">
+		<Cursor position="2945" topLine="105" />
 	</File>
 	<File name="main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="2505" topLine="78" />
+		<Cursor position="4022" topLine="94" />
 	</File>
 	<File name="src\ai.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="118" topLine="0" />
+		<Cursor position="198" topLine="0" />
 	</File>
-	<File name="src\alphabetaai.cpp" open="1" top="1" tabpos="5">
-		<Cursor position="1839" topLine="35" />
+	<File name="src\alphabetaai.cpp" open="1" top="1" tabpos="4">
+		<Cursor position="6567" topLine="196" />
 	</File>
-	<File name="src\board.cpp" open="1" top="0" tabpos="3">
+	<File name="src\alphabetanode.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="947" topLine="27" />
+	</File>
+	<File name="src\board.cpp" open="1" top="0" tabpos="2">
 		<Cursor position="935" topLine="30" />
 	</File>
-	<File name="src\montecarloai.cpp" open="0" top="0" tabpos="10">
-		<Cursor position="2292" topLine="60" />
+	<File name="src\montecarloai.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="153" topLine="0" />
 	</File>
-	<File name="src\montecarlonode.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="4883" topLine="0" />
+	<File name="src\montecarlonode.cpp" open="1" top="0" tabpos="8">
+		<Cursor position="6024" topLine="247" />
 	</File>
 	<File name="src\randomai.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="63" topLine="0" />

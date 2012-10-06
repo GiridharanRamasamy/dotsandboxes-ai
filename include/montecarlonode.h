@@ -2,6 +2,7 @@
 #define MONTECARLONODE_H
 
 #include <vector>
+#include <string>
 
 
 class MonteCarloNode
@@ -16,6 +17,16 @@ class MonteCarloNode
          *@param myTurn whether or not it is my turn
          */
         MonteCarloNode(int* parent, int pointsRemainingInGame, int score, int opponentScore, bool iMadeThis);
+
+        /**
+         * Constructs a new node
+         *@param parent the parent node
+         *@param pointsRemnainingInGame how many points left in game
+         *@param score my score
+         *@param opponentScore opponent score
+         *@param myTurn whether or not it is my turn
+         */
+        MonteCarloNode(std::string parent, int pointsRemainingInGame, int score, int opponentScore, bool myTurn);
 
         /**
          * Frees memory
@@ -62,13 +73,7 @@ class MonteCarloNode
          * Returns a copy of this board state
          *@return copy of state
          */
-        int* copyBoard();
-
-        /**
-         * Deletes the copy of the board
-         *@param copy the return of copyState()
-         */
-        void deleteCopy(int* copy);
+        void generateBoard(int* copy);
 
         /**
          * Sets the board size
@@ -115,7 +120,8 @@ class MonteCarloNode
         MonteCarloNode* parent; /**< the parent node */
         std::vector<MonteCarloNode *> children; /**< children nodes */
 
-        int* state; /**< the board state */
+        //int* state; /**< the board state */
+        std::string lines; /**< lines */
         int visitCount; /**< how many times this node has been visited */
         int totalGames; /**< how many games of this state */
         int gameScore; /**< the score of all the games */

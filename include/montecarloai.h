@@ -73,6 +73,7 @@ class MonteCarloAI: public AI
         std::vector<MonteCarloNode *> nodes; /**< the search tree */
         int boardSize; /**< the size of hte board */
         std::vector<MonteCarloNode *> garbage; /**< garbage */
+        int* heapBoard;
 };
 
 #endif // MONTECARLOAI_H
