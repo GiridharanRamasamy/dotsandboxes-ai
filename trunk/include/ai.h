@@ -14,6 +14,11 @@ class AI
         AI(int bw, int bh);
 
         /**
+         * Frees memory
+         */
+        virtual ~AI();
+
+        /**
          * Makes a move
          *@param board the game board visualization
          *@param score my score

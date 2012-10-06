@@ -11,6 +11,11 @@ AI::AI(int bw, int bh) {
 }
 
 /**
+ * Frees memory
+ */
+AI::~AI() {}
+
+/**
  * Converts board coordinates to a single int
  *@param bx board x
  *@param by board y

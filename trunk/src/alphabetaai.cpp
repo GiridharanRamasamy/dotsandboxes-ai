@@ -2,6 +2,55 @@
 #include <limits>
 #include <cmath>
 #include <cstring>
+#include <ctime>
+#include <cstdio>
+#include <conio.h>
+
+/**
+ * Thread
+ *@param ai_pte a-b ai
+ */
+void* ab_thread(void* ai_ptr) {
+    //printf("thread start\n");
+    AlphaBetaAI* ai = (AlphaBetaAI *)ai_ptr;
+    std::vector<AlphaBetaNode *> depthNodes;
+
+    pthread_mutex_lock(&ai->mutex);
+    int depth = 1;
+    int from_depth = 0;
+    while (ai->run) {
+        pthread_mutex_unlock(&ai->mutex);
+        depthNodes.clear();
+        pthread_mutex_lock(&ai->mutex);
+        ai->find_depth_nodes(from_depth, depthNodes);
+        if (depthNodes.size() && from_depth < ai->boxes) {
+            for (unsigned int i = 0; i < depthNodes.size(); i++) {
+                //printf("-----------------------------\n");
+                if (depthNodes[i]->myScore < ai->myScore || depthNodes[i]->otherScore < ai->otherScore) {
+                    depthNodes[i]->myScore += ai->myScore;
+                    depthNodes[i]->otherScore += ai->otherScore;
+                }
+                ai->alpha_beta(depthNodes[i], depth, !(from_depth%2), depthNodes[i]->myScore, depthNodes[i]->otherScore, depthNodes[i]->getPointsLeft());
+                //printf("%d-----------------------------%d\n", i, depthNodes.size());
+                pthread_mutex_unlock(&ai->mutex);
+                pthread_mutex_lock(&ai->mutex);
+                if (ai->reset) {
+                    //printf("reset\n");
+                    ai->reset = false;
+                    from_depth = 0;
+                    break;
+                }
+            }
+            from_depth++;
+        } else {
+            from_depth = 0;
+        }
+    }
+    pthread_mutex_unlock(&ai->mutex);
+    //printf("thread end\n");
+    pthread_exit(NULL);
+    return NULL;
+}
 
 /**
  * Inits a new AI
@@ -9,15 +58,32 @@
  *@param bh board height
  */
 AlphaBetaAI::AlphaBetaAI(int bw, int bh): AI(bw, bh) {
-    _board = new int[bw*bh];
-    bestMove = 0;
+    //_board = new int[bw*bh];
+    AlphaBetaNode::setSize(bw*bh, bw);
+    run = false;
+    pthread_mutex_init(&mutex, NULL);
+    myScore = 0;
+    otherScore = 0;
+    heapBoard = new int[bw*bh];
+    boxes = bw*bh/4;
+    reset = false;
 }
 
 /**
  * Frees memory
  */
 AlphaBetaAI::~AlphaBetaAI() {
-    delete _board;
+    void* status;
+    pthread_mutex_lock(&mutex);
+    run = false;
+    pthread_mutex_unlock(&mutex);
+    pthread_join(thread, &status);
+    pthread_mutex_destroy(&mutex);
+
+    for (unsigned int i = 0; i < nodes.size(); i++) {
+        delete nodes[i];
+    }
+    delete heapBoard;
 }
 
 /**
@@ -29,22 +95,17 @@ AlphaBetaAI::~AlphaBetaAI() {
  *@return my move
  */
 int AlphaBetaAI::makeMove(int* board, int score, int opponentScore, int pointsRemaining) {
-    int depth = 5; //needs to be a time limit?..Iterative Deepening
-    int inf = numeric_limits<int>::max();
+    AlphaBetaNode* root = trim_tree(board, score, opponentScore, pointsRemaining);
 
-    //Create copy of the board for use in search tree
-    //_board = new int[boardWidth*boardHeight];
-    /*for (int i=0; i < boardWidth*boardHeight; i++)
-    {
-        _board[i] = board[i];
-    }*/
-    // found a probably faster copy function than iterating
-    memcpy((void *)_board, (void *)board, sizeof(int)*boardWidth*boardHeight);
+    if (!run) {
+        run = true;
+        pthread_create(&thread, NULL, ab_thread, (void *)this);
+    }
 
-    int maxPlayer = 1;
-    alpha_beta( _board, depth, -inf, inf, maxPlayer, score, opponentScore, pointsRemaining); //calls the alpha_beta search process
+    int start = time(0);
+    while (time(0)-start < 1);
 
-    return bestMove;
+    return best_move(root);
 }
 
 /**
@@ -54,129 +115,85 @@ int AlphaBetaAI::makeMove(int* board, int score, int opponentScore, int pointsRe
  *@param beta the minimax value for beta
  *@return x y coordinates for move
  */
-float AlphaBetaAI::alpha_beta(int* _board, int depth, float alpha, float beta, int maxPlayer, int myScore, int otherScore, int pointsRemaining)
+int AlphaBetaAI::alpha_beta(AlphaBetaNode* node, int depth, int maxPlayer, int myScore, int otherScore, int pointsRemaining)
 {
-    if (depth == 0 || pointsRemaining == 0) // or is a terminal node?
+    node->myScore = myScore;
+    node->otherScore = otherScore;
+
+    node->generateBoard(heapBoard);
+
+    if (depth <= 0 || pointsRemaining == 0) // or is a terminal node?
     {
-        return evaluate(_board, myScore, otherScore, maxPlayer);
+        //printf("leaf node!\n");
+        int eval = evaluate(heapBoard, myScore, otherScore, maxPlayer);
+        return eval;
     }
 
-    vector<int> legalMoves;
-    generateLegalMoves(_board, legalMoves);  //vector of all possible legal moves to make
+    vector<int> legalMoves(node->getMoves());
+    //std::vector<int> moves;
+    //generateLegalMoves(_board, legalMoves);  //vector of all possible legal moves to make
 
-    while (!legalMoves.empty()) //for each child node of max and min player
+    while (legalMoves.size()) //for each child node of max and min player
     {
+        //printf("legal moves: %d\n", legalMoves.size());
         int myPoints = myScore;
         int otherPoints = otherScore;
         int pointsLeft = pointsRemaining;
-        int moves = 0;
-        do {
-            moves++;
-            /// TODO: legalMoves[legalMoves.size()-moves]  is where we put move ordering
-        } while (moves < legalMoves.size() && makeNextMove(_board, legalMoves[legalMoves.size()-moves], maxPlayer, myPoints, otherPoints, pointsLeft));
-        if (moves == legalMoves.size()) {
-            moves--;
-        }
-        //maxPlayer = makeNextMove(_board, legalMoves, maxPlayer); //changes betweens turn unless box completed
+
+        bool scored = makeNextMove(heapBoard, legalMoves[legalMoves.size()-1], maxPlayer, myPoints, otherPoints, pointsLeft);
+        AlphaBetaNode* kid = find_root(heapBoard, node, pointsLeft);
+        node->hasKid(kid);
+        kid->hasParent(node);
+
+        //printf("getting eval %d\n", kid);
+        float eval = alpha_beta(kid, 0, scored?maxPlayer:!maxPlayer, myPoints, otherPoints, pointsLeft);
+        /*if (scored) {
+            eval += eval+1;
+        }*/
+        //printf("got! eval %d\n", kid);
+
         if (maxPlayer)
         {
-            float eval = alpha_beta(_board, depth-1, alpha, beta, !maxPlayer, myPoints, otherPoints, pointsLeft);
-            //alpha = max(alpha, eval);
-            if (eval > alpha) {
-                alpha = eval;
-                if (depth == 5) {
-                    bestMove = legalMoves[legalMoves.size()-1];
-                }
+            if (eval > node->alpha) {
+                node->alpha = eval;
             }
-            if (beta <= alpha) {
+            //printf("%d  %d\n", node->alpha, node->beta);
+            if (node->beta <= node->alpha) {
+                //printf("max-cut\n");
+                unmakeLastMove(heapBoard, legalMoves[legalMoves.size()-1]);
                 break; //beta cut-off
             }
         }
         else
         {
-            float eval = alpha_beta(_board, depth-1, alpha, beta, !maxPlayer, myPoints, otherPoints, pointsLeft);
-//            beta = min(beta, );
-            if (eval < beta) {
-                beta = eval;
+            if (eval < node->beta) {
+                node->beta = eval;
             }
-            if (beta <= alpha) {
+            //printf("\t\t\t%d  %d\n", node->alpha, node->beta);
+            if (node->beta <= node->alpha) {
+                //printf("min-cut\n");
+                unmakeLastMove(heapBoard, legalMoves[legalMoves.size()-1]);
                 break; //alpha cut-off
             }
         }
-        while (moves > 0) {
-            /// TODO: this needs to be changed when move ordering is implemented
-            unmakeLastMove(_board, legalMoves[legalMoves.size()-moves]);
-            moves--;
-        }
+        //while (moves.size()) {
+            unmakeLastMove(heapBoard, legalMoves[legalMoves.size()-1]);
+        //    moves.pop_back();
+        //}
         legalMoves.pop_back();
+        break;
     }//end while loop of all legalMoves
+
+    //printf("about to return thingy\n");
     if (maxPlayer) {
-        return alpha;
+        return node->alpha;
     }
-    return beta;
+    return node->beta;
 }
 
 void AlphaBetaAI::unmakeLastMove(int* _board, int move) {
     _board[move] = BOARD_EMPTY;
 }
-
-/**
- * Generates a vector of all legal moves
- * @param board true board (not the copy)
- * @param v vector reference to legalMoves
- */
- void AlphaBetaAI::generateLegalMoves(int *board, vector<int> &v)
- {
-     //Creates the vector of legal moves
-     for( int i=0; i<boardWidth*boardHeight; i++)
-     {
-         if(board[i] == BOARD_EMPTY) {
-            v.push_back(i);
-         }
-     }
-
-     //sorts the legal moves into [capture moves, non-capture moves]
-     for (int i=0; i<boardHeight*boardWidth; i++)
-     {
-         if(board[i] == BOARD_FREE_SQUARE)
-         {
-             int lines = board[i-(boardWidth*2+1)] + board[i-1] + board[i+1] + board[i+(boardWidth*2+1)];
-             if (lines == 3)
-             {
-                 int reorder = NULL;
-
-                 if (!board[i-(boardWidth*2+1)])
-                 {
-                     reorder = i-(boardWidth*2+1);
-                     //int loc = find(v == reorder);
-                 }
-                 else if (!board[i-1])
-                 {
-                     reorder = i-1;
-                     //int loc = find(v == reorder);
-                 }
-                 else if (!board[i+1])
-                {
-                    reorder = i+1;
-                    //int loc = find(v == reorder);
-                }
-                else
-                {
-                    reorder = i+(boardWidth*2+1);
-                    //int loc = find(v == reorder);
-                }
-
-                int loc = 0;
-                for (int j=1; j<=loc; j--)
-                {
-                    v[j] = v[j-1];
-                }
-                v[1] = reorder;
-             }
-         }
-     }
-
- }
 
 /**
  * Makes the next move in search
@@ -195,54 +212,21 @@ int AlphaBetaAI::makeNextMove(int *_board, int move, int maxPlayer, int& myScore
         }
     }
     return squares;
-
-    /*int pointsRem = _board.getPointsRemaining();
-    int nextMove = moves.back();
-    _board.playBoardCoord(nextMove);
-
-    if(pointsRem != _board.getPointsRemaining()) //if change in score, then box was completed and maxPlayer gets to go again
-        return maxPlayer;
-
-    return !maxPlayer;*/ //no change in score, so minPlayers turn
- /*
-    _board[nextMove] = BOARD_LINE;
-    if (squaresMade(board, nextMove) > 0)
-    {
-
-        //makeNextMove(_board, )
-    }
-*/
 }
-
-/*
-/ **
- * Undoes the previous move on search board
- *  and deletes the move from legalMoves
- * @param _board copy board for search
- * @param v vector reference to legalMoves
- *
-void unMakeMove(int *_board, vector<int> &v)
-{
-    int prevMove = v.back();
-    b[prevMove] = BOARD_EMPTY;
-
-    v.pop_back();
-}
-*/
 
 /**
  * Calculates utility function
  *@param _board pointer to the current state of the board COPY used to create tree
  *@return eval the value of the function
  */
-float AlphaBetaAI::evaluate(int* board, int myScore, int otherScore, bool myMove)
+int AlphaBetaAI::evaluate(int* board, int myScore, int otherScore, bool myMove)
 {
     int s3 = 0;
     int s2 = 0;
     int size = boardWidth*boardHeight;
 
     // first square starts at 1x1 = width+2
-    for (int i = boardWidth+2; i < size; i+=2) {
+    for (int i = boardWidth+1; i < size; i+=2) {
         if (board[i] == BOARD_DOT) { // advance to next row
             i += boardWidth+1;
             if (i >= size) {
@@ -270,51 +254,145 @@ float AlphaBetaAI::evaluate(int* board, int myScore, int otherScore, bool myMove
         }
     }
 
-    return 2*myScore-2*otherScore+(0.75f*s3-0.5*s2)*(myMove?1:-1);
+    /*if (myMove) {
+        return 8*myScore-8*otherScore-3*s3+2*s2;
+    }
+    return 8*otherScore-8*myScore-3*s3+2*s2;*/
+    return 8*myScore-8*otherScore+3*s3-2*s2;
 }
 
-/*
-/ **
- * Checks how many squares are made by the line
- *@param board the game board
- *@param line the line that was placed
- *@return how many squares this line made (0-2)
- *
-int AlphaBetaAI::squaresMade(int* board, int line) {
-   int x = line%boardWidth;
-   int y = line/boardWidth;
-   bool vert = y%2;
-   int squares = 0;
-   if (vert) {
-       // line is vertical, need to check square left and square right
-       if (x > 1) { // not left-most, so there is a square left
-           if (board[line-2] == BOARD_LINE && board[x-1+(y-1)*boardWidth] == BOARD_LINE && board[x-1+(y+1)*boardWidth] == BOARD_LINE) {
-               squares++;
-           }
-       }
-       if (x < boardWidth-1) { // not right-most so there is a square right
-           if (board[line+2] == BOARD_LINE && board[x+1+(y-1)*boardWidth] == BOARD_LINE && board[x+1+(y+1)*boardWidth] == BOARD_LINE) {
-               squares++;
-           }
-       }
-   } else {
-       // line is horizontal, need to check square up and square down
-       if (y > 1) { // not top-most, so there is a square up
-           if (board[line-boardWidth*2] == BOARD_LINE && board[(y-1)*boardWidth+x-1] == BOARD_LINE && board[(y-1)*boardWidth+x+1] == BOARD_LINE) {
-               squares++;
-           }
-       }
-       if (y < boardHeight-1) { // not bottom-most so there is a square down
-           if (board[line+boardWidth*2] == BOARD_LINE && board[(y+1)*boardWidth+x-1] == BOARD_LINE && board[(y+1)*boardWidth+x+1] == BOARD_LINE) {
-               squares++;
-           }
-       }
-   }
-   return squares;
+/**
+ * Finds the root node
+ *@param board the current board
+ *@param parent the parent node
+ *@param pointsLeft how many points are left in board
+ *@return the root node
+ */
+AlphaBetaNode* AlphaBetaAI::find_root(int* board, AlphaBetaNode* parent, int pointsLeft) {
+    for (unsigned int i = 0; i < nodes.size(); i++) {
+        if (parent != nodes[i] && nodes[i]->equals(board, pointsLeft)) {
+            return nodes[i];
+        }
+    }
+    nodes.push_back(new AlphaBetaNode(board, parent, pointsLeft));
+    return nodes[nodes.size()-1];
 }
-*/
 
+/**
+ * Trims the tree, killing some of the parents
+ *@param board the current board
+ *@param score my score
+ *@param opponentScore other score
+ *@param pointsLeft how many points left in the game
+ *@return the root of it all
+ */
+AlphaBetaNode* AlphaBetaAI::trim_tree(int* board, int score, int opponentScore, int pointsLeft) {
+    pthread_mutex_lock(&mutex);
+    AlphaBetaNode* root = find_root(board, NULL, pointsLeft);
+    //printf("found root");
+    int zeroD = root->getDepth();
+    // surely there is a better way of doing this...
 
+    // kill parents and reshape tree
+    for (unsigned int i = 0; i < nodes.size(); i++) {
+        if (nodes[i] != root && nodes[i]->getDepth() <= zeroD) {
+            //printf("going to kill self\n");
+            nodes[i]->killSelfAndKids();
+            //printf("managed to kill self\n");
+        } else {
+            nodes[i]->raise(zeroD);
+        }
+    }
+    // dispose of bodies
+    for (int i = 0; i < (signed)nodes.size(); i++) {
+        if (nodes[i] != root && nodes[i]->isDead()) {
+            //printf("killed one\n");
+            delete nodes[i];
+            nodes.erase(nodes.begin()+i);
+            i--;
+        }
+    }
 
+    myScore = score;
+    otherScore = opponentScore;
+    reset = true;
 
+    pthread_mutex_unlock(&mutex);
+    return root;
+}
 
+/**
+ * Finds nodes located at a certain depth
+ *@param depth the depth to search at
+ *@param depthNodes (out)
+ */
+void AlphaBetaAI::find_depth_nodes(int depth, std::vector<AlphaBetaNode *>& depthNodes) {
+    for (unsigned int i = 0; i < nodes.size(); i++) {
+        if (nodes[i]->getDepth() == depth) {
+            depthNodes.push_back(nodes[i]);
+        }
+    }
+}
+
+/**
+ * Magically figures out what the best move is
+ *@param node the current node
+ *@param max whether or not we want to max
+ *@return the best move (ever)
+ */
+int AlphaBetaAI::best_move(AlphaBetaNode* node) {
+    pthread_mutex_lock(&mutex);
+    for (int i = 0; i < (signed)node->getChildren().size(); i++) {
+        //printf("%d(%d)\n", i, node->getChildren().size());
+        float eval = best_move_eval(node->getChildren()[i], false);
+        //printf("got eval\n");
+        if (eval > node->alpha || node->bestKid == NULL) {
+            node->alpha = eval;
+            node->bestKid = node->getChildren()[i];
+        }
+    }
+    //for (int i = 0; i < node->getMoves().size(); i++) {
+    //    printf("%d ", node->getMoves()[i]);
+    //}
+    //getch();
+    //printf("I think score should be: %d >< %d\n", node->bestKid->otherScore, node->bestKid->myScore);
+    int best = node->bestMove();
+    pthread_mutex_unlock(&mutex);
+    return best;
+}
+
+/**
+ * Evals the alpha/beta of children
+ *@param node the node
+ *@param max whether or not to max
+ */
+int AlphaBetaAI::best_move_eval(AlphaBetaNode* node, bool max) {
+    //printf("%d      [%d]   ... %d\n", node, node->getChildren().size(), node->isInbred());
+    for (int i = 0; i < (signed)node->getChildren().size(); i++) {
+        if (max) {
+            //printf("about to max: %d (%d)\n", node->getChildren()[i], node->getChildren()[i]->getChildren().size());
+            float eval = best_move_eval(node->getChildren()[i], !max);
+            //printf("max done: %d\n", node->getChildren()[i]);
+            if (eval > node->alpha) {
+                node->alpha = eval;
+            }
+            if (node->beta <= node->alpha) {
+                break; //beta cut-off
+            }
+        } else {
+            //printf("about to min: %d\n", node->getChildren()[i]);
+            float eval = best_move_eval(node->getChildren()[i], !max);
+            //printf("min done: %d\n", node->getChildren()[i]);
+            if (eval < node->beta) {
+                node->beta = eval;
+            }
+            if (node->beta <= node->alpha) {
+                break; //beta cut-off
+            }
+        }
+    }
+    if (max) {
+        return node->alpha;
+    }
+    return node->beta;
+}

@@ -1,9 +1,21 @@
 #include "montecarlonode.h"
 #include "board.h"
 #include <cstring>
+#include <cstdio>
+#include <algorithm>
 
 int MonteCarloNode::size; /**< the size of the state */
 int MonteCarloNode::width; /**< the width of the board */
+
+/**
+ * Compares two monte carlo nodes
+ *@param m1
+ *@param m2
+ *@return
+ */
+bool montecmp(MonteCarloNode* m1, MonteCarloNode* m2) {
+    return(m1->getValue()>m2->getValue());
+}
 
 /**
  * Constructs a new node
@@ -13,9 +25,45 @@ int MonteCarloNode::width; /**< the width of the board */
  *@param opponentScore opponent score
  *@param myTurn whether or not it is my turn
  */
-MonteCarloNode::MonteCarloNode(int* parent, int pointsRemainingInGame, int score, int opponentScore, bool myTurn) {
-    state = new int[size];
-    memcpy((void *)state, (void *)parent, sizeof(int)*size);
+MonteCarloNode::MonteCarloNode(int* _parent, int pointsRemainingInGame, int score, int opponentScore, bool myTurn) {
+    //state = new int[size];
+    //memcpy((void *)state, (void *)parent, sizeof(int)*size);
+    lines = "";
+    for (int i = 1; i < size; i+=2) {
+        if (_parent[i] == BOARD_EMPTY) {
+            lines += "0";
+        } else {
+            lines += "1";
+        }
+    }
+
+    visitCount = 0;
+    totalGames = 0;
+    gameScore = 0;
+    move = 0;
+    expansion = 0;
+    pointsRemaining = pointsRemainingInGame;
+    parent = NULL;
+
+    myScore = score;
+    otherScore = opponentScore;
+
+    myMove = myTurn;
+}
+
+/**
+ * Constructs a new node
+ *@param parent the parent node
+ *@param pointsRemnainingInGame how many points left in game
+ *@param score my score
+ *@param opponentScore opponent score
+ *@param myTurn whether or not it is my turn
+ */
+MonteCarloNode::MonteCarloNode(std::string _parent, int pointsRemainingInGame, int score, int opponentScore, bool myTurn) {
+    //state = new int[size];
+    //memcpy((void *)state, (void *)parent, sizeof(int)*size);
+    lines = _parent;
+
     visitCount = 0;
     totalGames = 0;
     gameScore = 0;
@@ -34,7 +82,7 @@ MonteCarloNode::MonteCarloNode(int* parent, int pointsRemainingInGame, int score
  */
 MonteCarloNode::~MonteCarloNode()
 {
-    delete[] state;
+    //delete[] state;
     for (unsigned int i = 0; i < children.size(); i++) {
         delete children[i];
     }
@@ -54,7 +102,8 @@ void MonteCarloNode::visit() {
  */
 bool MonteCarloNode::equals(int* board) {
     for (int i = 1; i < size; i+=2) {
-        if (state[i] != board[i]) {
+        if ((board[i] == BOARD_EMPTY && lines[i/2] == '1') ||
+            (board[i] == BOARD_LINE && lines[i/2] == '0')) {
             return false;
         }
     }
@@ -67,17 +116,23 @@ bool MonteCarloNode::equals(int* board) {
  */
 std::vector<MonteCarloNode *>& MonteCarloNode::getChildren() {
     if (!children.size()) {
+        int* state = new int[size];
+        generateBoard(state);
         for (int i = 1; i < size; i+=2) {
-            if (state[i] == BOARD_EMPTY) {
+            if (lines[i/2] == '0') {
                 int squares = Board::squaresMade(state, i);
                 MonteCarloNode* child = new MonteCarloNode(state, pointsRemaining-squares, myMove?myScore+squares:myScore, !myMove?otherScore+squares:otherScore, squares?myMove:!myMove);
                 child->parent = this;
-                child->state[i] = BOARD_LINE;
+                child->lines[i/2] = '1';
                 child->move = i;
                 child->evaluate();
                 children.push_back(child);
             }
         }
+        delete[] state;
+    } else {
+        //std::sort(children.begin(), children.end(), montecmp);
+        //std::random_shuffle(children.begin(), children.end());
     }
     return children;
 }
@@ -87,6 +142,9 @@ std::vector<MonteCarloNode *>& MonteCarloNode::getChildren() {
  *@return value
  */
 float MonteCarloNode::getValue() {
+    if (totalGames == 0) {
+        return 0;
+    }
     return (float)gameScore/(float)totalGames;
 }
 
@@ -110,18 +168,19 @@ int MonteCarloNode::getExpansion() {
  * Returns a copy of this board state
  *@return copy of state
  */
-int* MonteCarloNode::copyBoard() {
-    int* copy = new int[size];
-    memcpy((void *)copy, (void *)state, sizeof(int)*size);
-    return copy;
-}
-
-/**
- * Deletes the copy of the board
- *@param copy the return of copyState()
- */
-void MonteCarloNode::deleteCopy(int* copy) {
-    delete copy;
+void MonteCarloNode::generateBoard(int* copy) {
+    //memset((void *)copy, BOARD_EMPTY, sizeof(int)*size);
+    /*for (int i = 0; i < lines.size(); i++) {
+        if (lines[i] == '1') {
+            copy[i*2+1] = BOARD_LINE;
+        } else {
+            copy[i*2+1] = BOARD_EMPTY;
+        }
+    }*/
+    if (parent != NULL) {
+        copy[move] = BOARD_LINE;
+        parent->generateBoard(copy);
+    }
 }
 
 /**
@@ -179,11 +238,14 @@ float MonteCarloNode::getEvaluation() {
  * evaluates how good this node is
  */
 void MonteCarloNode::evaluate() {
+    int* state = new int[size];
+    generateBoard(state);
+
     int s3 = 0;
     int s2 = 0;
 
-    // first square starts at 1x1 = width+2
-    for (int i = width+2; i < size; i+=2) {
+    // first square starts at 1x1 = width+1
+    for (int i = width+1; i < size; i+=2) {
         if (state[i] == BOARD_DOT) { // advance to next row
             i += width+1;
             if (i >= size) {
@@ -211,5 +273,7 @@ void MonteCarloNode::evaluate() {
         }
     }
 
-    evaluation = 2*myScore-2*otherScore+(0.75f*s3-0.5*s2)*(myMove?1:-1);
+    delete[] state;
+
+    evaluation = 2*myScore-2*otherScore+0.75f*s3-0.5f*s2;
 }

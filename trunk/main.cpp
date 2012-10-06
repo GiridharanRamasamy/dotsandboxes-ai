@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
         }
 
         int* board = new int[game->getBoardWidth()*game->getBoardHeight()];
+        int totalPoints = game->getPointsRemaining();
 
         while (game->getPointsRemaining() > 0) {
             if (visual) {
@@ -114,6 +115,10 @@ int main(int argc, char* argv[])
                     printf("Player 1 loses because he made an illegal move\n");
                     return -1;
                 }
+            }
+
+            if (game->getScore(0) > totalPoints/2 || game->getScore(1) > totalPoints/2) {
+                break;
             }
         }
 
