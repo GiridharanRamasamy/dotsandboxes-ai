@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstring>
 
-#define VISIT_THRESHOLD     3
+#define VISIT_THRESHOLD     1
 
 /**
  * Inits a new AI
@@ -50,10 +50,14 @@ int MonteCarloAI::makeMove(int* board, int score, int opponentScore, int pointsR
 
         MonteCarloNode* current = root;
         MonteCarloNode* last = NULL;
+        bool myTurn = true;
         while (in_tree(current)) {
             last = current;
             //printf("select\n");
-            current = select(current);
+            current = select(current, myTurn);
+            if (current != NULL && current->getPointsRemaining() != last->getPointsRemaining()) {
+                myTurn = !myTurn;
+            }
         }
         if (current == NULL) { // shouldn't ever be the case, but just in case
             current = last;
@@ -120,13 +124,13 @@ bool MonteCarloAI::in_tree(MonteCarloNode* node) {
  *@param current the current node
  *@return the next node
  */
-MonteCarloNode* MonteCarloAI::select(MonteCarloNode* current) {
+MonteCarloNode* MonteCarloAI::select(MonteCarloNode* current, bool myTurn) {
     std::vector<MonteCarloNode *>& children = current->getChildren();
     if (!children.size()) {
         return NULL;
     }
     int bestIndex = rand()%children.size();
-    float best = 0.f;
+    float best = children[bestIndex]->evaluate(myTurn);
 
     for (unsigned int i = 0; i < children.size(); i++) {
         if (children[i]->getVisitCount() > VISIT_THRESHOLD) {
@@ -137,7 +141,7 @@ MonteCarloNode* MonteCarloAI::select(MonteCarloNode* current) {
                 bestIndex = i;
             }
         } else {
-            float score = children[i]->getEvaluation();
+            float score = children[i]->evaluate(myTurn);
             if (score > best) {
                 best = score;
                 bestIndex = i;
@@ -228,9 +232,9 @@ int MonteCarloAI::simulate_game(MonteCarloNode* node, int score, int opponentSco
     }
 
     if (score > opponentScore) {
-        return 1;
+        return 50;
     } else if (score < opponentScore) {
-        return -1;
+        return -100;
     }
     return 0;
 }
@@ -246,6 +250,7 @@ int MonteCarloAI::simulate_game(MonteCarloNode* node, int score, int opponentSco
 MonteCarloNode* MonteCarloAI::find_root(int* board, int pointsRemaining, int score, int opponentScore) {
     for (unsigned int i = 0; i < nodes.size(); i++) {
         if (nodes[i]->equals(board)) {
+            nodes[i]->setScore(score, opponentScore);
             return nodes[i];
         }
     }

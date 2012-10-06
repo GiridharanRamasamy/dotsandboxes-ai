@@ -125,7 +125,7 @@ std::vector<MonteCarloNode *>& MonteCarloNode::getChildren() {
                 child->parent = this;
                 child->lines[i/2] = '1';
                 child->move = i;
-                child->evaluate();
+                //child->evaluate();
                 children.push_back(child);
             }
         }
@@ -237,7 +237,7 @@ float MonteCarloNode::getEvaluation() {
 /**
  * evaluates how good this node is
  */
-void MonteCarloNode::evaluate() {
+float MonteCarloNode::evaluate(bool myTurn) {
     int* state = new int[size];
     generateBoard(state);
 
@@ -275,5 +275,17 @@ void MonteCarloNode::evaluate() {
 
     delete[] state;
 
-    evaluation = 2*myScore-2*otherScore+0.75f*s3-0.5f*s2;
+    evaluation = 4*myScore-2*otherScore+0.75f*s3-0.5f*s2;
+
+    return evaluation;
+}
+
+void MonteCarloNode::setScore(int us, int them) {
+    int dif1 = us-myScore;
+    int dif2 = them-otherScore;
+    myScore = us;
+    otherScore = them;
+    for (unsigned int i = 0; i < children.size(); i++) {
+        children[i]->setScore(children[i]->myScore+dif1, children[i]->otherScore+dif2);
+    }
 }

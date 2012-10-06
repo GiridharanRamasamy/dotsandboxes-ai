@@ -111,11 +111,15 @@ class MonteCarloNode
          *@return evaluation
          */
         float getEvaluation();
-    private:
+
         /**
          * evaluates how good this node is
          */
-        void evaluate();
+        float evaluate(bool myTurn);
+
+        void setScore(int us, int them);
+    private:
+
 
         MonteCarloNode* parent; /**< the parent node */
         std::vector<MonteCarloNode *> children; /**< children nodes */
