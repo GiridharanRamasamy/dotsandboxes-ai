@@ -42,7 +42,7 @@ class MonteCarloAI: public AI
          *@param current the current node
          *@return the next node
          */
-        MonteCarloNode* select(MonteCarloNode* current);
+        MonteCarloNode* select(MonteCarloNode* current, bool myTurn);
 
         /**
          * Expands the leaf node
